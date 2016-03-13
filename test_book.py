@@ -116,7 +116,7 @@ def test_cli():
         assert os.path.exists('1000.R0.F0.zip')
 
     assert result.output == '1 file(s) added to zip\n'
-    
+
 def test_cli_no_file():
     runner = CliRunner()
     with runner.isolated_filesystem():

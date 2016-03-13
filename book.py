@@ -9,7 +9,7 @@ def cli(indir):
     result = make_zip(indir)
     if not result:
         click.secho('no zip file created', fg='red')
-    else:    
+    else:
         count = len(zipfile.ZipFile(result).namelist())
         click.secho('{} file(s) added to zip'.format(count), fg='green')
 
@@ -26,7 +26,7 @@ def make_zip(indir):
     if not job:
         os.chdir(old_dir)
         return None
-    
+
     file_list = [f for f in os.listdir() if f.startswith(job)]
     if job + ' SPECIAL PARTS.pdf' in file_list:
         file_list.remove(job + ' SPECIAL PARTS.xls')
