@@ -5,6 +5,8 @@ import glob
 import pytest
 import book
 
+from click.testing import CliRunner
+
 @pytest.fixture
 def indir(request):
     os.mkdir('tmp')
@@ -105,4 +107,14 @@ def test_zip_frame_more_digits(indir):
     assert '55555.R127.F0 3HMF.pdf' in zipfile.ZipFile(os.path.join(indir, '55555.R127.F0.zip')).namelist()
     assert not os.path.exists(os.path.join(indir, '55555.R127.F0 3HMF.pdf'))
     assert result == 1
+
+def test_cli():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        open('1000.R0.F0 3HMF.pdf', 'w')
+        result = runner.invoke(book.cli, '.')
+        assert os.path.exists('1000.R0.F0.zip')
+
+    assert result.output == '1 file(s) added to zip\n'
+
     

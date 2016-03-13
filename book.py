@@ -6,7 +6,11 @@ import click
 @click.command()
 @click.argument('indir', type=click.Path(exists=True, dir_okay=True, file_okay=False))
 def cli(indir):
-    click.echo('job done')
+    count = make_zip(indir)
+    output_color = 'green'
+    if count == 0:
+        output_color = 'red'
+    click.secho('{} file(s) added to zip'.format(count), fg=output_color)
 
 def make_zip(indir):
     old_dir = os.getcwd()
@@ -18,7 +22,6 @@ def make_zip(indir):
             job = result.group()
             break
 
-    #what if there is no match?
     file_list = [f for f in os.listdir() if f.startswith(job)]
     if job + ' SPECIAL PARTS.pdf' in file_list:
         file_list.remove(job + ' SPECIAL PARTS.xls')
