@@ -19,7 +19,10 @@ def make_zip(indir):
             break
 
     #what if there is no match?
-    file_list = [f for f in os.listdir() if job in f]
+    file_list = [f for f in os.listdir() if f.startswith(job)]
+    if job + ' SPECIAL PARTS.pdf' in file_list:
+        file_list.remove(job + ' SPECIAL PARTS.xls')
+        os.remove(job + ' SPECIAL PARTS.xls')
 
     zip_name = job + '.zip'
     new_zip = zipfile.ZipFile(zip_name, 'w')
@@ -29,6 +32,7 @@ def make_zip(indir):
 
     new_zip.close()
     os.chdir(old_dir)
+    return len(file_list)
 
 if __name__ == '__main__':
     cli()
