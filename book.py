@@ -6,11 +6,12 @@ import click
 @click.command()
 @click.argument('indir', type=click.Path(exists=True, dir_okay=True, file_okay=False))
 def cli(indir):
-    count = make_zip(indir)
-    output_color = 'green'
-    if count == 0:
-        output_color = 'red'
-    click.secho('{} file(s) added to zip'.format(count), fg=output_color)
+    result = make_zip(indir)
+    if not result:
+        click.secho('no zip file created', fg='red')
+    else:    
+        count = len(zipfile.ZipFile(result).namelist())
+        click.secho('{} file(s) added to zip'.format(count), fg='green')
 
 def make_zip(indir):
     old_dir = os.getcwd()
@@ -22,6 +23,10 @@ def make_zip(indir):
             job = result.group()
             break
 
+    if not job:
+        os.chdir(old_dir)
+        return None
+    
     file_list = [f for f in os.listdir() if f.startswith(job)]
     if job + ' SPECIAL PARTS.pdf' in file_list:
         file_list.remove(job + ' SPECIAL PARTS.xls')
@@ -35,7 +40,7 @@ def make_zip(indir):
 
     new_zip.close()
     os.chdir(old_dir)
-    return len(file_list)
+    return os.path.join(indir, zip_name)
 
 if __name__ == '__main__':
     cli()

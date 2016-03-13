@@ -23,7 +23,7 @@ def test_zip_frame(indir):
     assert os.path.exists(os.path.join(indir, '1000.R0.F0.zip'))
     assert '1000.R0.F0 3HMF.pdf' in zipfile.ZipFile(os.path.join(indir, '1000.R0.F0.zip')).namelist()
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 3HMF.pdf'))
-    assert result == 1
+    assert result == os.path.join(indir, '1000.R0.F0.zip')
 
 def test_zip_door(indir):
     open(os.path.join(indir, '1000.R0.D0 3HMD.pdf'), 'w')
@@ -33,7 +33,7 @@ def test_zip_door(indir):
     assert os.path.exists(os.path.join(indir, '1000.R0.D0.zip'))
     assert '1000.R0.D0 3HMD.pdf' in zipfile.ZipFile(os.path.join(indir, '1000.R0.D0.zip')).namelist()
     assert not os.path.exists(os.path.join(indir, '1000.R0.D0 3HMD.pdf'))
-    assert result == 1
+    assert result == os.path.join(indir, '1000.R0.D0.zip')
 
 def test_zip_frame_multiple_files(indir):
     open(os.path.join(indir, '1000.R0.F0 3HMF.pdf'), 'w')
@@ -49,7 +49,7 @@ def test_zip_frame_multiple_files(indir):
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 3HMF.pdf'))
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 STANDARD PARTS.pdf'))
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 PRECUT.xls'))
-    assert result == 3
+    assert result == os.path.join(indir, '1000.R0.F0.zip')
 
 def test_zip_frame_excludes_non_job_files(indir):
     open(os.path.join(indir, '1000.R0.F0 3HMF.pdf'), 'w')
@@ -61,7 +61,7 @@ def test_zip_frame_excludes_non_job_files(indir):
     assert os.path.exists(os.path.join(indir, 'something else.pdf'))
     assert '1000.R0.F0 3HMF.pdf' in zipfile.ZipFile(os.path.join(indir, '1000.R0.F0.zip')).namelist()
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 3HMF.pdf'))
-    assert result == 1
+    assert result == os.path.join(indir, '1000.R0.F0.zip')
 
 def test_zip_frame_special_parts_no_pdf(indir):
     open(os.path.join(indir, '1000.R0.F0 3HMF.pdf'), 'w')
@@ -74,7 +74,7 @@ def test_zip_frame_special_parts_no_pdf(indir):
     assert '1000.R0.F0 SPECIAL PARTS.xls' in zipfile.ZipFile(os.path.join(indir, '1000.R0.F0.zip')).namelist()
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 3HMF.pdf'))
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 SPECIAL PARTS.xls'))
-    assert result == 2
+    assert result == os.path.join(indir, '1000.R0.F0.zip')
 
 def test_zip_frame_special_parts_yes_pdf(indir):
     open(os.path.join(indir, '1000.R0.F0 3HMF.pdf'), 'w')
@@ -90,13 +90,13 @@ def test_zip_frame_special_parts_yes_pdf(indir):
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 3HMF.pdf'))
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 SPECIAL PARTS.xls'))
     assert not os.path.exists(os.path.join(indir, '1000.R0.F0 SPECIAL PARTS.pdf'))
-    assert result == 2
+    assert result == os.path.join(indir, '1000.R0.F0.zip')
 
 def test_zip_no_files(indir):
     result = book.make_zip(indir)
 
-    assert not glob.glob(indir + '//*.zip')
-    assert result == 0
+    assert not glob.glob(os.path.join(indir, '*.zip'))
+    assert not result
 
 def test_zip_frame_more_digits(indir):
     open(os.path.join(indir, '55555.R127.F0 3HMF.pdf'), 'w')
@@ -106,7 +106,7 @@ def test_zip_frame_more_digits(indir):
     assert os.path.exists(os.path.join(indir, '55555.R127.F0.zip'))
     assert '55555.R127.F0 3HMF.pdf' in zipfile.ZipFile(os.path.join(indir, '55555.R127.F0.zip')).namelist()
     assert not os.path.exists(os.path.join(indir, '55555.R127.F0 3HMF.pdf'))
-    assert result == 1
+    assert result == os.path.join(indir, '55555.R127.F0.zip')
 
 def test_cli():
     runner = CliRunner()
@@ -116,5 +116,12 @@ def test_cli():
         assert os.path.exists('1000.R0.F0.zip')
 
     assert result.output == '1 file(s) added to zip\n'
+    
+def test_cli_no_file():
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(book.cli, '.')
+
+    assert result.output == 'no zip file created\n'
 
     
